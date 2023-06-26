@@ -1,0 +1,14 @@
+#root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+a {
+    text-decoration: none;
+    color: white;
+}
+
+main {
+    flex-grow: 1;
+}
