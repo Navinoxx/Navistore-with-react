@@ -20,7 +20,7 @@ The store uses the DummyJSON API provided by [https://dummyjson.com/](https://du
 To run this project locally, follow these steps:
 
 1. Clone the repository: `git clone <repository-url>`
-2. Navigate to the project directory: `cd overwatch-2-page`
+2. Navigate to the project directory: `cd navistore-with-react`
 3. Install the dependencies: `npm install`
 4. Start the development server: `npm start`
 5. Open your browser and visit: [http://localhost:5173](http://localhost:5173)
