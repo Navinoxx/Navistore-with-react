@@ -1,10 +1,9 @@
 import { Box, Card, Typography } from "@mui/material";
-import { useContext } from "react";
-import { CartContext } from "../../context/contextCart";
-import CartPay from "./cartPay";
+import { useStore } from "../../store/bookStore";
+import { CartPay } from "./cartPay";
 
-function SidebarCart() {
-    const { cart } = useContext(CartContext);
+export const SidebarCart = () => {
+    const { cart } = useStore();
 
     const Subtotal = cart.reduce(
         (acc, item) =>
@@ -14,25 +13,26 @@ function SidebarCart() {
         0
     );
 
-    const envio = Math.round(Subtotal * 0.005);
+    const shipping = Math.round(Subtotal * 0.005);
 
-    const total = Subtotal + parseFloat(envio);
+    const total = Subtotal + parseFloat(shipping);
 
     return (
-        <Box sx={{ width: '30%' }}>
-            <Card sx={{ padding: '1rem' }}>
+        <Box sx={{ width: { xs: '100%', md: '30%'} }}>
+            <Card sx={{ padding: '1rem' }} square>
+                <Typography gutterBottom sx={{ textTransform: 'uppercase', fontWeight: 'bold', fontSize: '1.5rem', textAlign: 'center' }}>Order Summary</Typography>
                 <Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography>Subtotal:</Typography>
-                    <Typography>$ {Subtotal}</Typography>
+                        <Typography>Subtotal:</Typography>
+                        <Typography>$ {Subtotal}</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', paddingY: '1rem' }}>
-                    <Typography>Costo de envío:</Typography>
-                    <Typography>$ {envio}</Typography>
+                        <Typography>Shipping:</Typography>
+                        <Typography>$ {shipping}</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography>Total:</Typography>
-                    <Typography>$ {total}</Typography>
+                        <Typography>Total:</Typography>
+                        <Typography>$ {total}</Typography>
                     </Box>
                 </Box>
                 <Box sx={{ paddingY: '1rem' }}>
@@ -42,5 +42,3 @@ function SidebarCart() {
         </Box>
     );
 }
-
-export default SidebarCart;

@@ -5,11 +5,11 @@ export async function getCategories() {
     try {
         const response = await fetch(urlCategories);
         if (!response.ok) {
-            throw new Error('Error al obtener las categorias');
+            throw new Error('Error to get categories');
         }
         return await response.json();
     } catch (error) {
-        console.log('Error al obtener las categorias:' + error.message);
+        console.log('Error to get categories:' + error.message);
         throw error;
     }
 }

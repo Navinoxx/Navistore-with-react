@@ -1,28 +1,43 @@
-import CardProduct from "../components/cards/cardProduct";
-import NestedList from "../components/sidebar/sidebarProducts";
-import Container from '@mui/material/Container';
-import { useContext } from "react";
-import { ProductContext } from "../context/contextProducts";
-import { Typography } from "@material-ui/core";
+import { useParams } from "react-router-dom";
+import { useStore } from "../store/bookStore";
+import { Container, Box, CircularProgress } from "@mui/material";
+import { CardProduct } from "../components/cards/cardProduct";
+import { NestedList } from "../components/sidebar/sidebarProducts";
+import noResults from "../assets/no_results.jpg";
+import { Error404 } from "./error404";
 
-export default function Products() {
-    const { products, setProductsFiltered, productsFiltered } = useContext(ProductContext);
+export const Products = () => {
+    const { productsFiltered, loading } = useStore();
+    const { page } = useParams();
+    const isValidPage =  new Set(['all', 'top review', 'popular', 'best offers']).has(page);
 
-    const handleFilterProduct = (id) => {
-        const filteredProducts = products.products.filter((product) => product.id === id);
-        setProductsFiltered(filteredProducts[0]);
+    if (loading) {
+        return  (
+            <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+                <CircularProgress size={70}/>
+            </Box>
+        );
     }
-    
+
+    if (productsFiltered.length === 0) {
+        return (
+            <Container maxWidth="xl" component="main" sx={{display: 'flex', marginY: '2rem'}} >
+                <NestedList/>
+                <Box component="img" src={noResults} sx={{ width: '100%', objectFit: 'contain', objectPosition: 'top', overflow: 'hidden' }} alt="Empty" loading="lazy" />
+            </Container>
+        )
+    }
+
+    if (!isValidPage) {
+        return (
+            <Error404 />
+        )
+    }
+
     return (
-        <Container maxWidth="xl" component="main" sx={{display: 'flex', marginTop: '2rem'}} >
+        <Container maxWidth="xl" component="main" sx={{display: 'flex', marginY: '2rem'}} >
             <NestedList/>
-                {productsFiltered.length === 0 ? (
-                    <Typography variant="h4">
-                    No se encontraron resultados.
-                    </Typography>
-                        ) : (
-                        <CardProduct handleFilterProduct={handleFilterProduct}/>
-                    )}
+            <CardProduct />
         </Container>
     )
 }

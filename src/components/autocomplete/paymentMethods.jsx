@@ -1,33 +1,37 @@
+import { useEffect, useState } from "react";
+import { useStore } from "../../store/bookStore";
+import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
-import Box from '@mui/material/Box';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import { useState } from 'react';
-
-export default function PaymentMethods() {
+export const PaymentMethods = () => {
+    const { cart } = useStore();
     const [value, setValue] = useState('');
 
     const handleChange = (event) => {
         setValue(event.target.value);
     };
 
+    useEffect(() => {
+        if (cart.length === 0) {
+            setValue('');
+        }
+    }, [cart]);
+
     return (
         <Box sx={{ paddingY: '1rem' }}>
             <FormControl fullWidth>
-            <InputLabel id="demo-simple-select-label">Seleccione un método de pago</InputLabel>
-            <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                label="Seleccione un método de pago"
-                value={value}
-                onChange={handleChange}
-            >
-                <MenuItem value="Visa">Visa</MenuItem>
-                <MenuItem value="American Express">American Express</MenuItem>
-                <MenuItem value="MasterCard">MasterCard</MenuItem>
-            </Select>
+                <InputLabel id="demo-simple-select-label">Payment method</InputLabel>
+                <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    label="Payment method"
+                    value={value}
+                    onChange={handleChange}
+                    disabled={cart.length === 0}
+                >
+                    <MenuItem value="Visa">Visa</MenuItem>
+                    <MenuItem value="American Express">American Express</MenuItem>
+                    <MenuItem value="MasterCard">MasterCard</MenuItem>
+                </Select>
             </FormControl>
         </Box>
     );

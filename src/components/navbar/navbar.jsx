@@ -1,15 +1,13 @@
-import AppBar from '@mui/material/AppBar';
-import { NavInf } from './navInf';
-import { NavSup } from './navSup';
+import { AppBar } from "@mui/material";
+import { NavInf } from "./navInf";
+import { NavSup } from "./navSup";
 
-function SearchAppBar() {
+export const SearchAppBar = () => {
     
     return (
-        <AppBar position="sticky">
+        <AppBar component="nav" position="sticky">
             <NavSup/>
             <NavInf/>
         </AppBar>
     );
 }
-
-export default SearchAppBar;

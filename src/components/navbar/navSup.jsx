@@ -1,16 +1,9 @@
-import { Box, Container, IconButton, Toolbar, Typography } from "@mui/material";
-import SearchIcon from '@mui/icons-material/Search';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import logo from '../../assets/logo.png'
-import { styled, alpha } from '@mui/material/styles';
-import InputBase from '@mui/material/InputBase';
-import { Badge } from '@mui/material';
-import { Link } from "react-router-dom";
-import { useContext, useState } from "react";
-import { CartContext } from "../../context/contextCart";
-import { FavoritesContext } from "../../context/contextFavorites";
-import { ProductContext } from "../../context/contextProducts";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { useStore } from "../../store/bookStore";
+import { Box, Container, Toolbar, Typography, InputBase, styled, alpha, Divider } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -37,10 +30,10 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
-    color: 'inherit',
     '& .MuiInputBase-input': {
         padding: theme.spacing(1, 1, 1, 0),
         paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+        color: theme.palette.default.main,
         transition: theme.transitions.create('width'),
         width: '100%',
         [theme.breakpoints.up('sm')]: {
@@ -52,82 +45,91 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
 }));
 
-export function NavSup() {
-    const {cart} = useContext(CartContext)
-    const favoritesContext = useContext(FavoritesContext);
-    const { products, setProductsFiltered } = useContext(ProductContext);
-    const cartSize = cart.reduce((acc, item) => acc + item.quantity, 0)
-    const favoritesSize = favoritesContext.favorites.length
-
+export const NavSup = () => {
+    const { products, setFilterById } = useStore();
     const [searchTerm, setSearchTerm] = useState('');
+    const [results, setResults] = useState([]);
+    const navigate = useNavigate();
+    const searchRef = useRef();
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setSearchTerm('');
+                setResults([]);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const handleSearch = (event) => {
         const searchTerm = event.target.value.toLowerCase();
         setSearchTerm(searchTerm);
 
-        const filteredProducts = products.products.filter((product) =>
+        const filteredProducts = products.filter((product) =>
             product.title.toLowerCase().includes(searchTerm) ||
             product.description.toLowerCase().includes(searchTerm)
             );
-        setProductsFiltered(filteredProducts);
+        setResults(filteredProducts);
     };
 
+    const handleClickResult = (id) => {
+        navigate(`/products/all/${id}`);
+        setFilterById(id);
+        setSearchTerm('');
+        setResults([]);
+    }
+
     return (
-        <Container maxWidth="xl" component="nav">
-            <Toolbar disableGutters>
-                <Box sx={{display: 'flex', flexGrow: '1'}}>
+        <Box sx={{ bgcolor: 'primary.dark', pt: 6 }}>
+            <Container maxWidth="xl">
+                <Toolbar disableGutters sx={{justifyContent: 'space-between'}}>
                     <Link to="/">
-                        <img src={logo} width={50}/ >
-                    </Link>
                         <Typography
+                            component="h1"
                             variant="h4"
-                            noWrap
                             sx={{
-                            paddingLeft: 2,
-                            display: { xs: 'none', md: 'flex' },
-                            alignItems: 'center',
-                            fontFamily: 'monospace',
-                            fontWeight: 700,
-                            letterSpacing: '.3rem',
-                            color: 'inherit',
-                            textDecoration: 'none',
+                                textDecoration: 'none',
+                                color: 'secondary.main',    
                             }}
                         >
                             NAVISTORE
                         </Typography>
-                </Box>
-                <Search>
-                    <SearchIconWrapper>
-                    <SearchIcon />
-                    </SearchIconWrapper>
-                    <StyledInputBase
-                        placeholder="Buscar…"
-                        inputProps={{ 'aria-label': 'buscar' }}
-                        value={searchTerm}
-                        onChange={handleSearch}
-                    />
-                </Search>
-                <Box sx={{display: 'flex'}}>
-                    <Link to="/favoritos">
-                        <IconButton size="large" aria-label="show favorites" color="inherit">
-                            <Badge badgeContent={favoritesSize} color="error">
-                                <FavoriteIcon/>
-                            </Badge>
-                        </IconButton>
                     </Link>
-                    <Link to="/carro">
-                        <IconButton
-                            size="large"
-                            aria-label="show cart"
-                            color="inherit"
-                            >
-                            <Badge badgeContent={cartSize} color="error">
-                                <ShoppingCartIcon/>
-                            </Badge>
-                        </IconButton>
-                    </Link>
-                </Box>
-            </Toolbar>
-        </Container>
+                    <Search ref={searchRef}>
+                        <SearchIconWrapper>
+                            <SearchIcon />
+                        </SearchIconWrapper>
+                        <StyledInputBase
+                            placeholder="Search..."
+                            inputProps={{ 'aria-label': 'search' }}
+                            value={searchTerm}
+                            onChange={handleSearch}
+                            aria-haspopup="listbox"
+                            aria-controls="search-results-box"
+                        />
+                    {results.length > 0 ? (
+                        <Box sx={{ position: 'absolute', bgcolor: 'primary.dark', zIndex: 2, height: '30vh', overflow: 'auto' }}>
+                            {results.map((product) => (
+                                <Box onClick={() => handleClickResult(product.id)} sx={{ p: 1, color: 'primary.contrastText', cursor: 'pointer', ":hover": { color: 'default.main'}}} key={product.id}>
+                                    <Typography variant="h6">{product.title}</Typography>
+                                    <Typography variant="body2">{product.description}</Typography>
+                                    <Divider sx={{ mt: 2 }}/>
+                                </Box>
+                            ))}
+                        </Box>
+                    ) : searchTerm.trim() !== '' ? (
+                        <Box sx={{ position: 'absolute', p: 1, bgcolor: 'primary.dark',width: '100%', zIndex: 2 }}>
+                            No results found.
+                        </Box>
+                    ) : null}
+                    </Search>
+                </Toolbar>
+            </Container>
+        </Box>
     )
 }

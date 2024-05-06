@@ -1,35 +1,37 @@
 import { Box, IconButton } from "@mui/material";
-import PropTypes from 'prop-types';
+import { useStore } from "../../store/bookStore";
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
-import { FavoritesContext } from "../../context/contextFavorites";
-import { ProductContext } from "../../context/contextProducts";
-import { useContext } from "react";
+import PropTypes from "prop-types";
 
-export default function IconsCard({id}) {
-    const { products } = useContext(ProductContext);
-    const favoritesContext = useContext(FavoritesContext);
+export const IconsCard = ({ id }) => {
+    const { products, addToFavorites, removeFromFavorites, favorites } = useStore();
+
+    const isInFavorites = (id) => {
+        return favorites.some(item => item.id === id);
+    };
 
     const handleFavorites = (id) => {
-        if (favoritesContext.isInFavorites(id)) {
-        favoritesContext.removeFavorite(id);
+        if (isInFavorites(id)) {
+            removeFromFavorites(id);
         } else {
-        const product = products.products.find((product) => product.id === id);
-        favoritesContext.addFavorite(product);
+            const product = products.find((product) => product.id === id);
+            addToFavorites(product);
         }
     }
 
     return (
         <Box>
             <IconButton aria-label="add to favorites" onClick={() => handleFavorites(id)}>
-                    <FavoriteIcon sx={{ color: favoritesContext.isInFavorites(id) ? 'red' : 'inherit' }}/>
+                <FavoriteIcon sx={{ color: isInFavorites(id) ? 'red' : 'inherit' }}/>
             </IconButton>
             <IconButton aria-label="share">
                 <ShareIcon />
             </IconButton>
         </Box>
-    )
-}
+    );
+};
+
 
 IconsCard.propTypes = {
     id: PropTypes.number.isRequired,

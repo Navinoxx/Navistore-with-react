@@ -5,11 +5,11 @@ export async function getProducts() {
     try {
         const response = await fetch(urlProducts);
         if (!response.ok) {
-            throw new Error ('Error al obtener los productos');
+            throw new Error ('Error to get products');
         }
         return await response.json();
     } catch (error) {
-        console.log('Error al obtener los productos: ' + error.message);
+        console.log('Error to get products: ' + error.message);
         throw error;
     }   
 }

@@ -1,33 +1,67 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom"
-import SearchAppBar from "./components/navbar/navbar"
-import Home from "./pages/principal"
-import Products from "./pages/products"
-import Details from "./pages/details"
-import Favorites from "./pages/favorites"
-import Cart from "./pages/cart"
-import Footer from "./components/footer/footer"
-import { CartContextProvider } from "./context/contextCart"
-import { FavoritesContextProvider } from "./context/contextFavorites"
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Home } from "./pages/home"
+import { Products } from "./pages/products"
+import { Details } from "./pages/details"
+import { Favorites } from "./pages/favorites"
+import { Cart } from "./pages/cart"
+import { useStore } from "./store/bookStore";
+import { useEffect } from "react";
+import { Layout } from "./components/layout/layout";
+import { Error404 } from "./pages/error404";
+
+
+const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <Layout/>,
+        children: [
+            {
+                path: "/",
+                element: <Home/>,
+            },
+            {
+                path: "/products",
+                children: [
+                    {
+                        index: true,
+                        element: <Error404/>
+                    },
+                    {
+                        path: ":page",
+                        element: <Products/>,
+                    },
+                    {
+                        path: "all/:id",
+                        element: <Details/>,
+                    }
+                ]
+            },
+            {
+                path: "/favorites",
+                element: <Favorites/>,
+            },
+            {
+                path: "/cart",
+                element: <Cart/>,
+            },
+            {
+                path: "*",
+                element: <Error404/>
+            }
+        ]
+    }
+])
 
 function App() {
+    const fetchInitialData = useStore(state => state.fetchInitialData);
 
-  return (
-    <CartContextProvider>
-      <FavoritesContextProvider>
-        <BrowserRouter>
-          <SearchAppBar/>
-          <Routes>
-            <Route path="/" element={<Home/>} />
-            <Route path="/productos" element={<Products/>} />
-            <Route path="/productos/:id" element={<Details/>} />
-            <Route path="/favoritos" element={<Favorites/>} />
-            <Route path="/carro" element={<Cart/>} />
-          </Routes>
-          <Footer/>
-        </BrowserRouter>
-      </FavoritesContextProvider>
-    </CartContextProvider>
-  )
+    useEffect(() => {
+        fetchInitialData();
+    }, [fetchInitialData])
+
+    return (
+        <RouterProvider router={router}/>
+    )
 }
 
 export default App

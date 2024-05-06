@@ -1,37 +1,49 @@
-import { useContext } from 'react';
-import PropTypes from 'prop-types';
-import { List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
-import { HorizontalRule as HorizontalRuleIcon } from '@mui/icons-material';
-import { ProductContext } from '../../context/contextProducts';
+import { useState, useEffect } from "react";
+import { List, ListItem, ListItemIcon, ListItemText, Checkbox } from "@mui/material";
+import { useStore } from "../../store/bookStore";
+import PropTypes from "prop-types";
 
-export default function ListCategories({ handleCategorySelection, selectedCategory }) {
-    const { products, setProductsFiltered, categories } = useContext(ProductContext);
+export const ListCategories = ({ openIndex }) => {
+    const { categories, applyFilters, setMultiFilter } = useStore();
+    const [selectedCategories, setSelectedCategories] = useState([]);
 
-    const handleFilteredCategories = (category) => {
-        const filtered = products.products.filter((product) => product.category === category);
-        setProductsFiltered(filtered);
-        handleCategorySelection(category);
+    const handleCategorySelection = (category) => {
+        setSelectedCategories((prevCategories) => {
+            const newCategories = prevCategories.includes(category) 
+                ? prevCategories.filter((c) => c !== category) 
+                : [...prevCategories, category];
+            setMultiFilter('categories', newCategories);
+            applyFilters();
+            return newCategories;
+        });
     };
+
+    useEffect(() => {
+        if (openIndex !== 0) {
+            setMultiFilter('categories', []);
+            applyFilters();
+        }
+    }, [openIndex, setMultiFilter, applyFilters]);
 
     return (
         <List>
-        {categories.map((category, index) => (
-            <ListItemButton
-            sx={{ pl: 4, backgroundColor: selectedCategory === category ? 'lightgray' : 'inherit' }}
-            key={index}
-            onClick={() => handleFilteredCategories(category)}
-            >
-            <ListItemIcon>
-                <HorizontalRuleIcon />
-            </ListItemIcon>
-            <ListItemText primary={category} sx={{ textTransform: 'capitalize' }} />
-            </ListItemButton>
-        ))}
+            {categories.map((category, index) => (
+                <ListItem key={index}>
+                    <ListItemIcon>
+                        <Checkbox
+                            checked={selectedCategories.includes(category)}
+                            onChange={() => handleCategorySelection(category)}
+                        />
+                    </ListItemIcon>
+                    <ListItemText primary={category} sx={{ textTransform: 'capitalize' }} />
+                </ListItem>
+            ))}
         </List>
     );
 }
 
 ListCategories.propTypes = {
-    handleCategorySelection: PropTypes.func.isRequired,
-    selectedCategory: PropTypes.string.isRequired,
+    handleFilterChange: PropTypes.func,
+    selectedCategory: PropTypes.array,
+    openIndex: PropTypes.number,
 };

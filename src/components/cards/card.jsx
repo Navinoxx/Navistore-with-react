@@ -1,37 +1,33 @@
-import PropTypes from 'prop-types';
-import { Card, CardActions, CardContent, CardMedia, Typography, Button } from '@mui/material';
-import { Link } from 'react-router-dom';
-import IconsCard from '../icons/iconsCard';
+import { Card, CardActions, CardContent, CardMedia, Typography, Box } from "@mui/material";
+import { Link } from "react-router-dom";
+import { IconsCard } from "../icons/iconsCard";
+import { CustomButton } from "../buttons/customButton";
+import PropTypes from "prop-types";
 
-function RecipeCard({ product, handleFilterProduct }) {
-    const capitalize = (str) => {
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    };
+export const RecipeCard = ( { product }) => {
+    const finalPrice = Math.round(product.price - (product.price / 100) * product.discountPercentage);
 
     return (
-        <Card elevation={4} sx={{ width: 340, height: 450, display: 'flex', flexDirection: 'column', alignContent: 'space-between', padding: 0 }}>
+        <Card elevation={0} sx={{ height: 400, display: 'flex', flexDirection: 'column', alignContent: 'space-between'}}>
             <CardMedia
                 component="img"
-                height="194"
+                sx={{ height: 200, padding: '1rem', objectFit: 'cover' }}
                 image={product.thumbnail}
                 alt={product.description}
                 loading="lazy"
-            />
+            />  
             <CardContent sx={{ flexGrow: 1 }}>
-                <Typography variant="h5">{capitalize(product.title)}</Typography>
-                <Typography variant="h6" sx={{ textDecoration: 'line-through', paddingY: '0.7rem', color: 'gray' }}>
-                Precio normal: ${product.price}
-                </Typography>
-                <Typography variant="h6" sx={{ backgroundColor: 'red', color: 'white', padding: '0.3rem' }}>
-                Precio oferta: ${Math.round(product.price - (product.price / 100) * product.discountPercentage)}
+                <Typography variant="h5">{product.title}</Typography>
+                <Typography variant="h6" sx={{ display: 'flex', gap: '0.5rem' }} >
+                    Price:
+                    <Box component="span" sx={{ color: 'secondary.main' }}>$ {finalPrice}</Box>
+                    <Box component="span" sx={{ textDecoration: 'line-through', color: 'primary.contrastText' }}>$ {product.price}</Box>
                 </Typography>
             </CardContent>
             <CardActions disableSpacing sx={{ justifyContent: 'space-between' }}>
                 <IconsCard id={product.id} />
-                <Link to={`/productos/${product.id}`}>
-                <Button variant="contained" id={product.id} onClick={() => handleFilterProduct(product.id)}>
-                    Ver más
-                </Button>
+                <Link to={`/products/all/${product.id}`}>
+                    <CustomButton text="View Details" />
                 </Link>
             </CardActions>
         </Card>
@@ -40,14 +36,11 @@ function RecipeCard({ product, handleFilterProduct }) {
 
 RecipeCard.propTypes = {
     product: PropTypes.shape({
+        id: PropTypes.number.isRequired,
         thumbnail: PropTypes.string.isRequired,
-        description: PropTypes.string.isRequired,
+        description: PropTypes.string,
         title: PropTypes.string.isRequired,
         price: PropTypes.number.isRequired,
         discountPercentage: PropTypes.number.isRequired,
-        id: PropTypes.number.isRequired,
     }).isRequired,
-    handleFilterProduct: PropTypes.func.isRequired,
 };
-
-export default RecipeCard;

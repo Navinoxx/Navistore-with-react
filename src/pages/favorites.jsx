@@ -1,35 +1,43 @@
-import { useContext } from "react";
-import { FavoritesContext } from "../context/contextFavorites";
-import RecipeCard from "../components/cards/card";
-import { Container, Typography, Box } from "@mui/material";
+import { useStore } from "../store/bookStore";
+import { RecipeCard } from "../components/cards/card";
+import { Container, Box, Grid } from "@mui/material";
 import { Divider } from "@material-ui/core";
-import { ProductContext } from "../context/contextProducts";
+import { useBorderStyles } from "../hooks/useBorderStyles";
+import emptyWishlist from "../assets/empty_wishlist.jpg";
+import { CustomTitle } from "../components/title/customTitle";
 
-export default function Favorites() {
-    const favoritesContext = useContext(FavoritesContext);
-    const { products, setProductsFiltered } = useContext(ProductContext);
+export const Favorites = () => {
+    const { favorites } = useStore();
+    const sizeOptions = [1, 2, 3, 4];
+    const { borderRightStyles, borderBottomStyles } = useBorderStyles(favorites, sizeOptions);
 
-    const handleFilterProduct = (id) => {
-        const filteredProducts = products.products.filter((product) => product.id === id);
-        setProductsFiltered(filteredProducts[0]);
+    if (favorites.length === 0) {
+        return (
+            <Container maxWidth="xl" component="main" sx={{ marginTop: '2rem'}}>
+                <CustomTitle title="Wishlist"/>
+                <Divider/>
+                <Box sx={{ display: 'flex', justifyContent: 'center', marginY: '2rem', overflow: 'hidden' }}>
+                    <img src={emptyWishlist} alt="Empty wishlist" />
+                </Box>
+            </Container>
+        );
     }
 
     return (
         <Container maxWidth="xl" component="main" sx={{ marginTop: '2rem'}}>
-            {favoritesContext.favorites.length === 0 ? (
-                <Typography variant="h4" align="center">No hay favoritos añadidos</Typography>
-            ) : (
-                <>
-                    <Typography variant="h3" gutterBottom>FAVORITOS</Typography>
-                    <Divider/>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginY: '2rem' }}>
-                        {favoritesContext.favorites.map((favorite) => (
-                            <RecipeCard key={favorite.id} product={favorite} handleFilterProduct={handleFilterProduct} />
-                        ))}
-                    </Box>
-                </>
-            )}
+            <CustomTitle title="Wishlist"/>
+            <Divider/>
+            <Grid container sx={{ marginY: '2rem' }}>
+                {favorites.map((favorite, index) => (
+                    <Grid item xs={12} sm={6} md={4} lg={3} key={favorite.id} sx={{
+                        borderRight: { xs: borderRightStyles[index][0], sm: borderRightStyles[index][1], md: borderRightStyles[index][2], lg: borderRightStyles[index][3] },
+                        borderBottom: { xs: borderBottomStyles[index][0], sm: borderBottomStyles[index][1], md: borderBottomStyles[index][2], lg: borderBottomStyles[index][3] }
+                    }}>
+                        <RecipeCard product={favorite}/>
+                    </Grid>
+                ))}
+            </Grid>
         </Container>
     );
-}
+};
 

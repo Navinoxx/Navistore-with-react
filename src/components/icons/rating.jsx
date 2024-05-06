@@ -1,9 +1,9 @@
-import { PropTypes } from 'prop-types';
+import { useState } from "react";
 import Rating from '@mui/material/Rating';
 import Stack from '@mui/material/Stack';
-import { useState } from 'react';
+import PropTypes from "prop-types";
 
-export default function HalfRating({ rating }) {
+export const HalfRating = ({ rating }) => {
     const [value, setValue] = useState(rating);
 
     const handleRatingChange = (event, newValue) => {

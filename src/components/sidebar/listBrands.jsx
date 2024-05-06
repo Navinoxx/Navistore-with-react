@@ -1,44 +1,60 @@
-import { useContext } from 'react';
-import PropTypes from 'prop-types';
-import { List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
-import { HorizontalRule as HorizontalRuleIcon } from '@mui/icons-material';
-import { ProductContext } from '../../context/contextProducts';
+import { useState, useEffect } from "react";
+import { List, ListItem, ListItemIcon, ListItemText, Checkbox } from "@mui/material";
+import { useStore } from "../../store/bookStore";
+import PropTypes from "prop-types";
 
-export default function ListBrands({ handleCategorySelection, selectedCategory }) {
-    const { products, setProductsFiltered } = useContext(ProductContext);
-    const brandCounts = {};
+export const ListBrands = ({ openIndex }) => {
+    const { products, applyFilters, setMultiFilter } = useStore();
+    const [selectedBrands, setSelectedBrands] = useState([]);
 
-    products.products.forEach((product) => {
-        const brand = product.brand;
-        brandCounts[brand] = (brandCounts[brand] || 0) + 1;
-    });
+    const brandCounts = products.reduce((acc, product) => {
+        const { brand } = product;
+        if (brand) {
+            acc[brand] = (acc[brand] || 0) + 1;
+        }
+        return acc;
+    }, {});
 
-    const handleFilteredProducts = (brand) => {
-        const filtered = products.products.filter((product) => product.brand === brand);
-        setProductsFiltered(filtered);
-        handleCategorySelection(brand);
+    const handleBrandSelection = (brand) => {
+        setSelectedBrands(prevBrands => {
+            const newBrands = prevBrands.includes(brand) 
+                ? prevBrands.filter(b => b !== brand) 
+                : [...prevBrands, brand];
+
+            setMultiFilter('brands', newBrands);
+            applyFilters();
+            return newBrands;
+        });
     };
+
+    useEffect(() => {
+        if (openIndex !== 1) {
+            setMultiFilter('brands', []);
+            applyFilters();
+        }
+    }, [openIndex, setMultiFilter, applyFilters]);
 
     return (
         <List>
-        {Object.entries(brandCounts).map(([brand, count], index) => (
-            <ListItemButton
-            sx={{ pl: 4, backgroundColor: selectedCategory === brand ? 'lightgray' : 'inherit' }}
-            key={index}
-            onClick={() => handleFilteredProducts(brand)}
-            >
-            <ListItemIcon>
-                <HorizontalRuleIcon />
-            </ListItemIcon>
-            <ListItemText primary={`${brand} (${count})`} />
-            </ListItemButton>
-        ))}
+            {Object.entries(brandCounts).map(([brand, count], index) => (
+                <ListItem key={index} sx={{ pl: 4 }}>
+                    <ListItemIcon>
+                        <Checkbox
+                            checked={selectedBrands.includes(brand)}
+                            onChange={() => handleBrandSelection(brand)}
+                            sx={{ color: selectedBrands.includes(brand) ? 'primary.main' : 'inherit' }}
+                        />
+                    </ListItemIcon>
+                    <ListItemText primary={`${brand} (${count})`} />
+                </ListItem>
+            ))}
         </List>
     );
 }
 
 ListBrands.propTypes = {
-    handleCategorySelection: PropTypes.func.isRequired,
-    selectedCategory: PropTypes.string.isRequired,
+    handleFilterChange: PropTypes.func,
+    selectedBrand: PropTypes.array,
+    openIndex: PropTypes.number,
 };
 

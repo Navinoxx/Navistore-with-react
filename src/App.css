@@ -1,14 +1,23 @@
-#root {
+:root {
+    --primary-color: #141414;
+    --primary-color-dark: #212121;
+    --primary-color-contrast: #4e4e4e;
+    --secondary-color: #f5c615;
+}
+
+html {
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    color: var(--primary-color);
+    font-size: clamp(0.7rem, 1.5vw, 1rem);
+    
+}
+
+@supports not (font-size: clamp(1rem, 1.5vw, 1.5rem)) {
+    html {
+        font-size: min(max(0.7rem, 1.5vw), 1rem);
+    }
 }
 
 a {
     text-decoration: none;
-    color: white;
-}
-
-main {
-    flex-grow: 1;
-}
+}   

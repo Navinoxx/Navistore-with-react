@@ -1,16 +1,17 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { Link } from "react-router-dom";
+import cartEmpty from "../../assets/empty_cart.png";
 
-export default function CartEmpty() {
+export const CartEmpty = () => {
 
     return (
-        <Box sx={{display: 'flex', justifyContent: 'space-between', marginRight: '2rem', flexGrow: 1}}>
-            <Typography variant="h6" component="h6">No hay productos en tu carro</Typography>
+        <>
             <Box >
-                <Link to="/productos">
-                    <Button variant="contained">Iniciar compra</Button>
+                <Link to="/products/all">
+                    <Button variant="contained" sx={{ color: 'white', position: 'absolute' }}>Continue shopping</Button>
                 </Link>
             </Box>
-        </Box>
+            <Box component="img" src={cartEmpty} alt="Cart Empty" sx={{ marginX: 'auto', marginTop: '2rem', overflow: 'hidden' }} loading="lazy"/>
+        </>
     )
 }
